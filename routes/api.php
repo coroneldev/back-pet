@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\ClienteController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -72,4 +74,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/inscripciones/{id}/certificado', [InscripcionController::class, 'certificado']);
     Route::get('/inscripciones-usuario/{id}', [InscripcionController::class, 'indexUsuario']);
 
+    Route::get('/clientes', [ClienteController::class, 'index']);
+    Route::post('/clientes', [ClienteController::class, 'store']);
+    Route::put('/clientes/{id}', [ClienteController::class, 'update']);
+    Route::get('/clientes/{id}', [ClienteController::class, 'show']);
+    Route::put('/clientes/{id}', [ClienteController::class, 'update']);
+    Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
 });
