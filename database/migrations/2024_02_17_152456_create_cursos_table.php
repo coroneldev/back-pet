@@ -36,9 +36,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->unsignedBigInteger('area_id')->nullable();
-            $table->foreign('area_id')->references('id')->on('areas');
-            //$table->timestamps();
+
         });
     }
 

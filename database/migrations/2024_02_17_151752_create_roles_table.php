@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('fecha_creacion')->nullable();
             $table->timestamp('fecha_modificacion')->nullable();
             $table->timestamp('fecha_eliminacion')->nullable();
-            //$table->timestamps();
+            $table->timestamps();
         });
     }
 

@@ -2,25 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\RolService;
 use Illuminate\Http\Request;
+use App\Models\Rol;
+use Illuminate\Support\Facades\Validator;
 
 class RolController extends Controller
 {
-
-    protected $rolService;
-
-    public function __construct(RolService $rolService)
-    {
-        $this->rolService = $rolService;
-    }
-    
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return $this->rolService->index();
+        $roles = Rol::all();
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registros recuperados existosamente',
+            'data'      => $roles
+        ], 200);
     }
 
     /**
@@ -28,7 +27,32 @@ class RolController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->rolService->store($request);
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'nombre'   => 'required',
+            ],
+            [
+                'nombre.required'  => 'El campo Nombre es requerido',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Error en validaciones',
+                'errors'    => $validator->errors()
+            ], 200);
+        }
+
+        $rol = Rol::create($request->all());
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro guardado exitosamente',
+            'data'      => $rol
+        ], 201);
     }
 
     /**
@@ -36,7 +60,20 @@ class RolController extends Controller
      */
     public function show(string $id)
     {
-        return $this->rolService->show($id);
+        $rol = Rol::findOrFail($id);
+
+        if (is_null($rol)) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Registro no encontrado'
+            ], 200);
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro recuperado exitosamente',
+            'data'      => $rol
+        ], 200);
     }
 
     /**
@@ -44,7 +81,41 @@ class RolController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        return $this->rolService->update($request, $id);
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'nombre'   => 'required',
+            ],
+            [
+                'nombre.required'  => 'El campo Nombre es requerido',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Error en validaciones',
+                'errors'    => $validator->errors()
+            ], 200);
+        }
+
+        $rol = Rol::findOrFail($id);
+
+        if (is_null($rol)) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Registro no encontrado'
+            ], 200);
+        }
+
+        $rol->update($request->all());
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro modificado exitosamente',
+            'data'      => $rol
+        ], 200);
     }
 
     /**
@@ -52,6 +123,21 @@ class RolController extends Controller
      */
     public function destroy(string $id)
     {
-        return $this->rolService->destroy($id);
+
+        $rol = Rol::findOrFail($id);
+        if (is_null($rol)) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Registro no encontrado'
+            ], 200);
+        }
+
+        $rol->delete();
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro eliminado exitosamente',
+            'data'      => $rol
+        ], 200);
     }
 }

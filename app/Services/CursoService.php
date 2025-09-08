@@ -44,7 +44,7 @@ class CursoService
                 //'documento'   => 'required',
                 'estado'        => 'required',
                 //'user_id'       => 'required',
-                'area_id'       => 'required'
+              //  'area_id'       => 'required'
             ],
             [
                 'nombre.required'       => 'El campo Nombre es requerido',
@@ -61,7 +61,7 @@ class CursoService
                 //'documento'           => 'required',
                 'estado.required'       => 'El campo Estado es requerido',
                 //'user_id.required'      => 'El campo Docente es requerido',
-                'area_id.required'      => 'El campo Área es requerido'
+              //  'area_id.required'      => 'El campo Área es requerido'
             ]
         );
 
@@ -118,7 +118,7 @@ class CursoService
                 //'documento'   => 'required',
                 'estado'        => 'required',
                 //'user_id'       => 'required',
-                'area_id'       => 'required'
+               // 'area_id'       => 'required'
             ],
             [
                 'nombre.required'       => 'El campo Nombre es requerido',
@@ -135,7 +135,7 @@ class CursoService
                 //'documento'           => 'required',
                 'estado.required'       => 'El campo Estado es requerido',
                 //'user_id.required'      => 'El campo Docente es requerido',
-                'area_id.required'      => 'El campo Área es requerido'
+                //'area_id.required'      => 'El campo Área es requerido'
             ]
         );
 

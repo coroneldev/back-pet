@@ -43,7 +43,7 @@ class CursoRepository
         //$curso->documento  = $request->documento;
         $curso->estado       = $request->estado;
         $curso->user_id      = $request->user_id;
-        $curso->area_id      = $request->area_id;
+       // $curso->area_id      = $request->area_id;
         $curso->user_creador_id   = Auth::id();
         $curso->fecha_creacion    = date('Y-m-d H:i:s');
         $curso->save();
@@ -80,7 +80,7 @@ class CursoRepository
         //$curso->documento  = $request->documento;
         $curso->estado       = $request->estado;
         $curso->user_id      = $request->user_id;
-        $curso->area_id      = $request->area_id;
+       // $curso->area_id      = $request->area_id;
         $curso->user_modificador_id   = Auth::id();
         $curso->fecha_modificacion    = date('Y-m-d H:i:s');
         $curso->save();

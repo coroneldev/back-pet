@@ -32,8 +32,7 @@ class Curso extends Model
         'fecha_modificacion',
         'fecha_eliminacion',
 
-        'user_id',
-        'area_id'
+        'user_id'
     ];
     public $timestamps = false;
 
@@ -42,14 +41,5 @@ class Curso extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function area()
-    {
-        return $this->belongsTo(Area::class, 'area_id');
-    }
-
-    public function inscripciones()
-    {
-        return $this->hasMany(Inscripcion::class);
-    }
 
 }
