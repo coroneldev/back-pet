@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\MascotaController;
 
 
 Route::get('/cursos-portal', [CursoController::class, 'indexPortal']);
@@ -46,4 +47,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/clientes/{id}', [ClienteController::class, 'show']);
     Route::put('/clientes/{id}', [ClienteController::class, 'update']);
     Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
+
+    Route::get('/mascotas', [MascotaController::class, 'index']);
+    Route::post('/mascotas', [MascotaController::class, 'store']);
+    Route::put('/mascotas/{id}', [MascotaController::class, 'update']);
+    Route::get('/mascotas/{id}', [MascotaController::class, 'show']);
+    Route::put('/mascotas/{id}', [MascotaController::class, 'update']);
+    Route::delete('/mascotas/{id}', [MascotaController::class, 'destroy']);
 });

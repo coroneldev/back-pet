@@ -4,73 +4,149 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cliente;
+use Illuminate\Support\Facades\Validator;
 
 class ClienteController extends Controller
 {
     /**
-     * Mostrar todos los clientes.
+     * Display a listing of the resource.
      */
     public function index()
     {
         $clientes = Cliente::all();
-        return response()->json($clientes);
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registros recuperados exitosamente',
+            'data'      => $clientes
+        ], 200);
     }
 
     /**
-     * Guardar un nuevo cliente.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre'     => 'required|string',
-            'email'      => 'required|email|unique:clientes,email',
-            'documento'  => 'required|string|unique:clientes,documento',
-            'telefono'   => 'required|string',
-            'direccion'  => 'required|string',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'nombre'   => 'required|string|max:100',
+                'email'    => 'required|email|unique:clientes,email',
+                'telefono' => 'nullable|string|max:20',
+            ],
+            [
+                'nombre.required'  => 'El campo Nombre es requerido',
+                'email.required'   => 'El campo Email es requerido',
+                'email.email'      => 'Debe ser un correo válido',
+                'email.unique'     => 'El correo ya está registrado',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Error en validaciones',
+                'errors'    => $validator->errors()
+            ], 200);
+        }
 
         $cliente = Cliente::create($request->all());
 
-        return response()->json($cliente, 201);
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro guardado exitosamente',
+            'data'      => $cliente
+        ], 201);
     }
 
     /**
-     * Mostrar un cliente específico.
+     * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
-        $cliente = Cliente::findOrFail($id);
-        return response()->json($cliente);
+        $cliente = Cliente::find($id);
+
+        if (is_null($cliente)) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Registro no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro recuperado exitosamente',
+            'data'      => $cliente
+        ], 200);
     }
 
     /**
-     * Actualizar un cliente existente.
+     * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        $cliente = Cliente::findOrFail($id);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'nombre'   => 'required|string|max:100',
+                'email'    => 'required|email|unique:clientes,email,' . $id,
+                'telefono' => 'nullable|string|max:20',
+            ],
+            [
+                'nombre.required'  => 'El campo Nombre es requerido',
+                'email.required'   => 'El campo Email es requerido',
+                'email.email'      => 'Debe ser un correo válido',
+                'email.unique'     => 'El correo ya está registrado',
+            ]
+        );
 
-        $request->validate([
-            'nombre'     => 'sometimes|required|string',
-            'email'      => 'sometimes|required|email|unique:clientes,email,' . $id,
-            'documento'  => 'sometimes|required|string|unique:clientes,documento,' . $id,
-            'telefono'   => 'sometimes|required|string',
-            'direccion'  => 'sometimes|required|string',
-        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Error en validaciones',
+                'errors'    => $validator->errors()
+            ], 200);
+        }
+
+        $cliente = Cliente::find($id);
+
+        if (is_null($cliente)) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Registro no encontrado'
+            ], 404);
+        }
 
         $cliente->update($request->all());
 
-        return response()->json($cliente);
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro modificado exitosamente',
+            'data'      => $cliente
+        ], 200);
     }
 
-    /**
-     * Eliminar un cliente.
-     */
-    public function destroy($id)
-    {
-        $cliente = Cliente::findOrFail($id);
-        $cliente->delete(); // Si usas soft deletes, se marcará como eliminado
 
-        return response()->json(['message' => 'Cliente eliminado correctamente']);
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $cliente = Cliente::find($id);
+
+        if (is_null($cliente)) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Registro no encontrado'
+            ], 404);
+        }
+
+        $cliente->delete();
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Registro eliminado exitosamente',
+            'data'      => $cliente
+        ], 200);
     }
 }
