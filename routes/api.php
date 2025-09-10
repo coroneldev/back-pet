@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\MascotaController;
+use App\Http\Controllers\VacunaController;
 
 
 Route::get('/cursos-portal', [CursoController::class, 'indexPortal']);
@@ -54,4 +55,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mascotas/{id}', [MascotaController::class, 'show']);
     Route::put('/mascotas/{id}', [MascotaController::class, 'update']);
     Route::delete('/mascotas/{id}', [MascotaController::class, 'destroy']);
+
+    Route::get('/vacunas', [VacunaController::class, 'index']);
+    Route::post('/vacunas', [VacunaController::class, 'store']);
+    Route::put('/vacunas/{id}', [VacunaController::class, 'update']);
+    Route::get('/vacunas/{id}', [VacunaController::class, 'show']);
+    Route::put('/vacunas/{id}', [VacunaController::class, 'update']);
+    Route::delete('/vacunas/{id}', [VacunaController::class, 'destroy']);
 });

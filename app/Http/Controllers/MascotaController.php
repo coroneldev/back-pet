@@ -14,7 +14,9 @@ class MascotaController extends Controller
      */
     public function index()
     {
-        $mascotas = Mascota::with('cliente')->get();
+        $mascotas = Mascota::with('cliente')
+            ->orderBy('id', 'desc') // Ordenar descendente por ID
+            ->get();
 
         return response()->json([
             'status'  => true,

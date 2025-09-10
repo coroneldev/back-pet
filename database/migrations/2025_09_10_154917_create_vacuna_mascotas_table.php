@@ -11,25 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vacunas', function (Blueprint $table) {
+        Schema::create('mascota_vacuna', function (Blueprint $table) {
             $table->id();
-
-            $table->string('vacuna');               // nombre de la vacuna
-            $table->date('fecha');                  // fecha de aplicación
-            $table->date('prox_fecha')->nullable(); // próxima dosis
-
-            // Relación con mascota
             $table->foreignId('mascota_id')
                 ->constrained('mascotas')
                 ->onDelete('cascade');
-
-            // Relación con veterinario (usuario con rol veterinario)
-            $table->foreignId('veterinario_id')
-                ->constrained('users')
+            $table->foreignId('vacuna_id')
+                ->constrained('vacunas')
                 ->onDelete('cascade');
-
-            $table->softDeletes();
-
+            $table->date('fecha_aplicacion'); // Fecha de la aplicación
+            $table->date('proxima_aplicacion')->nullable(); // Refuerzo
+            $table->text('observaciones')->nullable();
+            $table->string('veterinario')->nullable(); // Opcional
             $table->timestamps();
         });
     }
@@ -39,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vacunas');
+        Schema::dropIfExists('mascota_vacuna');
     }
 };
