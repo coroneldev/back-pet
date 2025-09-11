@@ -45,12 +45,5 @@ class ClienteSeeder extends Seeder
             'direccion' => 'URBANIZACIÓN EL CARMEN'
         ]);
 
-        DB::table('clientes')->insert([
-            'nombre'    => 'PEDRO RAMIREZ',
-            'email'     => 'PEDRO.RAMIREZ@MAIL.COM',
-            'documento' => 'DOC-1005',
-            'telefono'  => '70000005',
-            'direccion' => 'AV. SANTA CRUZ KM 5'
-        ]);
     }
 }

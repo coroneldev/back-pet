@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Mascota;
 use App\Models\Cliente;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class MascotaController extends Controller
 {
@@ -15,7 +16,7 @@ class MascotaController extends Controller
     public function index()
     {
         $mascotas = Mascota::with('cliente')
-            ->orderBy('id', 'desc') // Ordenar descendente por ID
+            ->orderBy('id', 'desc')
             ->get();
 
         return response()->json([
@@ -41,7 +42,9 @@ class MascotaController extends Controller
                 'peso'        => 'nullable|numeric|min:0',
                 'sexo'        => 'nullable|in:MACHO,HEMBRA',
                 'detalles'    => 'nullable|string',
-                'cliente_id'  => 'required|exists:clientes,id'
+                'cliente_id'  => 'required|exists:clientes,id',
+                'foto'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+                // 'foto'        => 'nullable'
             ]
         );
 
@@ -53,7 +56,26 @@ class MascotaController extends Controller
             ], 200);
         }
 
-        $mascota = Mascota::create($request->all());
+        // Creamos primero la mascota sin la foto
+        $mascota = Mascota::create($request->except('foto'));
+
+        // Procesamos la foto si viene
+        if ($request->hasFile('foto')) {
+            $cliente = $mascota->cliente;
+            $clienteFolder = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}";
+
+
+            // Guardamos con el código de la mascota como nombre de archivo
+            $path = $request->file('foto')->storeAs(
+                "public/{$clienteFolder}",
+                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
+            );
+
+            // Guardamos en BD la ruta accesible públicamente
+            //$mascota->foto = str_replace("public/", "storage/", $path);
+            $mascota->foto = str_replace("public/mascotas/", "", $path);
+            $mascota->save();
+        }
 
         return response()->json([
             'status'  => true,
@@ -61,7 +83,6 @@ class MascotaController extends Controller
             'data'    => $mascota->load('cliente')
         ], 201);
     }
-
 
     /**
      * Mostrar mascota por ID.
@@ -84,7 +105,6 @@ class MascotaController extends Controller
         ], 200);
     }
 
-
     /**
      * Actualizar mascota.
      */
@@ -102,6 +122,8 @@ class MascotaController extends Controller
                 'sexo'        => 'nullable|in:MACHO,HEMBRA',
                 'detalles'    => 'nullable|string',
                 'cliente_id'  => 'required|exists:clientes,id'
+                // 'foto'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                //  'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ]
         );
 
@@ -121,7 +143,42 @@ class MascotaController extends Controller
             ], 404);
         }
 
-        $mascota->update($request->all());
+        // Actualizamos campos excepto foto
+        $mascota->update($request->except('foto'));
+
+        // Si viene una nueva foto, reemplazar
+        if ($request->hasFile('foto')) {
+            $cliente = $mascota->cliente;
+            $clienteFolder = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}";
+
+            // Borramos la foto anterior si existe
+            /* if ($mascota->foto && Storage::exists(str_replace("storage/", "public/", $mascota->foto))) {
+                Storage::delete(str_replace("storage/", "public/", $mascota->foto));
+            }*/
+
+            /* $path = $request->file('foto')->storeAs(
+                "public/{$clienteFolder}",
+                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
+            );*/
+            // Guardar el archivo dentro de storage/app/public/Clientes/...
+            /* $path = $request->file('foto')->storeAs(
+                "public/mascotas/{$clienteFolder}",
+                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
+            );*/
+
+            /* $mascota->foto = str_replace("public/", "storage/", $path);
+            $mascota->save();*/
+
+            // Guardamos en BD la ruta relativa **sin 'public/mascotas/'**
+            //$mascota->foto = "{$clienteFolder}/{$mascota->codigo}." . $request->file('foto')->getClientOriginalExtension();
+
+            $path = $request->file('foto')->storeAs(
+                "public/Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}",
+                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
+            );
+            $mascota->foto = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}/{$mascota->codigo}." . $request->file('foto')->getClientOriginalExtension();
+            $mascota->save();
+        }
 
         return response()->json([
             'status'  => true,
