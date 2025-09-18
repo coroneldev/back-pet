@@ -19,10 +19,12 @@ return new class extends Migration
             $table->integer('intervalo_dosis')->nullable(); // Intervalo en días entre dosis
             $table->string('especie_destinada');
             $table->boolean('estado')->default(true);
+
             $table->foreignId('veterinario_id') // veterinario responsable
                 ->nullable()
                 ->constrained('users') // suponiendo que veterinarios están en la tabla users
                 ->onDelete('set null');
+                
             $table->timestamps();
             $table->softDeletes();
         });

@@ -11,18 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mascota_vacuna', function (Blueprint $table) {
+        Schema::create('controles', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('mascota_id')
                 ->constrained('mascotas')
                 ->onDelete('cascade');
+
             $table->foreignId('vacuna_id')
                 ->constrained('vacunas')
                 ->onDelete('cascade');
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+
+            $table->foreignId('cliente_id')
+                ->constrained('clientes')
+                ->onDelete('cascade');
+
             $table->date('fecha_aplicacion'); // Fecha de la aplicación
             $table->date('proxima_aplicacion')->nullable(); // Refuerzo
             $table->text('observaciones')->nullable();
-            $table->string('veterinario')->nullable(); // Opcional
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -32,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mascota_vacuna');
+        Schema::dropIfExists('controles');
     }
 };
