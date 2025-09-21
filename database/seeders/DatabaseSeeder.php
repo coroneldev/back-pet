@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MascotaSeeder::class);
         $this->call(VacunaSeeder::class);
         $this->call(ControlSeeder::class);
+        $this->call(CitaSeeder::class);
     }
 }

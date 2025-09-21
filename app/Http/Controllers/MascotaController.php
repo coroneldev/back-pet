@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Models\Mascota;
-use App\Models\Cliente;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class MascotaController extends Controller
 {
@@ -34,7 +37,6 @@ class MascotaController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'codigo'      => 'required|string|unique:mascotas,codigo',
                 'nombre'      => 'required|string|max:100',
                 'especie'     => 'required|string|max:50',
                 'raza'        => 'nullable|string|max:50',
@@ -43,8 +45,6 @@ class MascotaController extends Controller
                 'sexo'        => 'nullable|in:MACHO,HEMBRA',
                 'detalles'    => 'nullable|string',
                 'cliente_id'  => 'required|exists:clientes,id',
-                'foto'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-                // 'foto'        => 'nullable'
             ]
         );
 
@@ -53,29 +53,24 @@ class MascotaController extends Controller
                 'status'  => false,
                 'message' => 'Error en validaciones',
                 'errors'  => $validator->errors()
-            ], 200);
+            ], 422);
         }
 
-        // Creamos primero la mascota sin la foto
-        $mascota = Mascota::create($request->except('foto'));
+        // Contador basado en registros existentes
+        $contador = Mascota::count() + 1;
+        $contadorFormatted = str_pad($contador, 5, "0", STR_PAD_LEFT);
 
-        // Procesamos la foto si viene
-        if ($request->hasFile('foto')) {
-            $cliente = $mascota->cliente;
-            $clienteFolder = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}";
+        // Generar 3 dígitos aleatorios
+        $randomDigits = str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
 
+        // Código final
+        $codigo = "MASC{$randomDigits}{$contadorFormatted}";
 
-            // Guardamos con el código de la mascota como nombre de archivo
-            $path = $request->file('foto')->storeAs(
-                "public/{$clienteFolder}",
-                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
-            );
-
-            // Guardamos en BD la ruta accesible públicamente
-            //$mascota->foto = str_replace("public/", "storage/", $path);
-            $mascota->foto = str_replace("public/mascotas/", "", $path);
-            $mascota->save();
-        }
+        // Crear mascota (foto quedará null)
+        $mascota = Mascota::create(array_merge(
+            $request->all(),
+            ['codigo' => $codigo, 'foto' => null]
+        ));
 
         return response()->json([
             'status'  => true,
@@ -106,14 +101,13 @@ class MascotaController extends Controller
     }
 
     /**
-     * Actualizar mascota.
+     * Actualizar mascota (sin foto).
      */
     public function update(Request $request, string $id)
     {
         $validator = Validator::make(
             $request->all(),
             [
-                'codigo'      => 'required|string|unique:mascotas,codigo,' . $id,
                 'nombre'      => 'required|string|max:100',
                 'especie'     => 'required|string|max:50',
                 'raza'        => 'nullable|string|max:50',
@@ -122,8 +116,6 @@ class MascotaController extends Controller
                 'sexo'        => 'nullable|in:MACHO,HEMBRA',
                 'detalles'    => 'nullable|string',
                 'cliente_id'  => 'required|exists:clientes,id'
-                // 'foto'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                //  'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ]
         );
 
@@ -132,7 +124,7 @@ class MascotaController extends Controller
                 'status'  => false,
                 'message' => 'Error en validaciones',
                 'errors'  => $validator->errors()
-            ], 200);
+            ], 422);
         }
 
         $mascota = Mascota::find($id);
@@ -143,42 +135,8 @@ class MascotaController extends Controller
             ], 404);
         }
 
-        // Actualizamos campos excepto foto
+        // Actualizamos todo menos foto
         $mascota->update($request->except('foto'));
-
-        // Si viene una nueva foto, reemplazar
-        if ($request->hasFile('foto')) {
-            $cliente = $mascota->cliente;
-            $clienteFolder = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}";
-
-            // Borramos la foto anterior si existe
-            /* if ($mascota->foto && Storage::exists(str_replace("storage/", "public/", $mascota->foto))) {
-                Storage::delete(str_replace("storage/", "public/", $mascota->foto));
-            }*/
-
-            /* $path = $request->file('foto')->storeAs(
-                "public/{$clienteFolder}",
-                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
-            );*/
-            // Guardar el archivo dentro de storage/app/public/Clientes/...
-            /* $path = $request->file('foto')->storeAs(
-                "public/mascotas/{$clienteFolder}",
-                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
-            );*/
-
-            /* $mascota->foto = str_replace("public/", "storage/", $path);
-            $mascota->save();*/
-
-            // Guardamos en BD la ruta relativa **sin 'public/mascotas/'**
-            //$mascota->foto = "{$clienteFolder}/{$mascota->codigo}." . $request->file('foto')->getClientOriginalExtension();
-
-            $path = $request->file('foto')->storeAs(
-                "public/Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}",
-                $mascota->codigo . '.' . $request->file('foto')->getClientOriginalExtension()
-            );
-            $mascota->foto = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}/{$mascota->codigo}." . $request->file('foto')->getClientOriginalExtension();
-            $mascota->save();
-        }
 
         return response()->json([
             'status'  => true,
@@ -207,5 +165,131 @@ class MascotaController extends Controller
             'message' => 'Mascota eliminada exitosamente',
             'data'    => $mascota
         ], 200);
+    }
+
+    /**
+     * Actualizar foto de mascota (nueva función).
+     */
+
+    public function updateImagen(Request $request, $id): JsonResponse
+    {
+        // Validación de foto
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            ],
+            [
+                'foto.image'  => 'El archivo debe ser una imagen válida',
+                'foto.mimes'  => 'Solo se permiten imágenes JPEG, PNG, JPG, GIF o WEBP',
+                'foto.max'    => 'La imagen no debe superar los 5 MB',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Error en validaciones',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        // Verificar que la mascota existe
+        $mascota = Mascota::whereNull('deleted_at')->with('cliente')->find($id);
+
+        if (!$mascota) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Mascota no encontrada'
+            ], 404);
+        }
+
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+
+            // Carpeta por cliente y nombre de mascota
+            $cliente = $mascota->cliente;
+            $clienteFolder = "Clientes/{$cliente->nombre}-{$cliente->id}/{$mascota->nombre}";
+
+            // Nombre único
+            $filename = \Illuminate\Support\Str::uuid() . '.' . $file->getClientOriginalExtension();
+
+            // Guardar archivo en storage/app/public/Clientes/...
+            $file->storeAs("public/{$clienteFolder}", $filename);
+
+            // Guardar ruta relativa en BD
+            $mascota->foto = "{$clienteFolder}/{$filename}";
+            $mascota->save();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Imagen de la mascota guardada correctamente',
+                'data'    => $mascota
+            ], 200);
+        }
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'No se encontró el archivo de imagen'
+        ], 400);
+    }
+
+    /**
+     * Obtener vacunas de una mascota por ID
+     */
+    public function vacunasPorCodigo($codigo)
+    {
+        // Buscar mascota por su código con sus controles y vacunas
+        $mascota = Mascota::with(['controles.vacuna', 'controles.usuario'])
+            ->where('codigo', $codigo)
+            ->first();
+
+        if (!$mascota) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Mascota no encontrada'
+            ], 404);
+        }
+
+        // Solo devolvemos los controles/vacunas
+        $vacunas = $mascota->controles->map(function ($control) {
+            return [
+                'id'                => $control->id,
+                'vacuna_id'         => $control->vacuna_id,
+                'vacuna_nombre'     => $control->vacuna->nombre ?? null,
+                'fecha_aplicacion'  => $control->fecha_aplicacion,
+                'proxima_aplicacion' => $control->proxima_aplicacion,
+                'observaciones'     => $control->observaciones,
+                'usuario_id'        => $control->usuario_id,
+                'usuario_nombre'    => $control->usuario->nombres ?? null,
+            ];
+        });
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Vacunas de la mascota obtenidas exitosamente',
+            'data'    => $vacunas
+        ], 200);
+    }
+
+    public function generarPDF($codigo)
+    {
+        $mascota = Mascota::with(['controles.vacuna', 'controles.usuario'])
+            ->where('codigo', $codigo)
+            ->first();
+
+        if (!$mascota) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Mascota no encontrada'
+            ], 404);
+        }
+
+        $vacunas = $mascota->controles;
+
+        $pdf = Pdf::loadView('mascota_vacunas', compact('mascota', 'vacunas'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download("Ficha_Mascota_{$mascota->codigo}.pdf");
     }
 }

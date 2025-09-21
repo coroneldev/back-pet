@@ -31,4 +31,9 @@ class Mascota extends Model
     {
         return $this->belongsTo(Cliente::class);
     }
+
+    public function controles()
+    {
+        return $this->hasMany(Control::class);
+    }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\MascotaController;
 use App\Http\Controllers\VacunaController;
 use App\Http\Controllers\ControlController;
+use App\Http\Controllers\CitaController;
 
 
 Route::get('/cursos-portal', [CursoController::class, 'indexPortal']);
@@ -47,22 +48,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/clientes', [ClienteController::class, 'store']);
     Route::put('/clientes/{id}', [ClienteController::class, 'update']);
     Route::get('/clientes/{id}', [ClienteController::class, 'show']);
-    Route::put('/clientes/{id}', [ClienteController::class, 'update']);
     Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
 
     Route::get('/mascotas', [MascotaController::class, 'index']);
     Route::post('/mascotas', [MascotaController::class, 'store']);
     Route::put('/mascotas/{id}', [MascotaController::class, 'update']);
     Route::get('/mascotas/{id}', [MascotaController::class, 'show']);
-    Route::put('/mascotas/{id}', [MascotaController::class, 'update']);
     Route::delete('/mascotas/{id}', [MascotaController::class, 'destroy']);
+    Route::post('/mascotas/{id}/imagen', [MascotaController::class, 'updateImagen']);
+
 
     Route::get('/vacunas', [VacunaController::class, 'index']);
     Route::post('/vacunas', [VacunaController::class, 'store']);
     Route::put('/vacunas/{id}', [VacunaController::class, 'update']);
     Route::get('/vacunas/{id}', [VacunaController::class, 'show']);
-    Route::put('/vacunas/{id}', [VacunaController::class, 'update']);
     Route::delete('/vacunas/{id}', [VacunaController::class, 'destroy']);
 
     Route::get('/controles', [ControlController::class, 'index']);
+    Route::post('/controles', [ControlController::class, 'store']);
+    Route::get('/controles/{id}', [ControlController::class, 'show']);
+    Route::put('/controles/{id}', [ControlController::class, 'update']);
+    Route::delete('/controles/{id}', [ControlController::class, 'destroy']);
+
+
+    /*Reportes*/
+    Route::get('/mascota/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
+    Route::get('/mascota/codigo/{codigo}/pdf', [MascotaController::class, 'generarPDF']);
+
+
+    Route::get('/citas', [CitaController::class, 'index']);
+    Route::post('/citas', [CitaController::class, 'store']);
+    Route::put('/citas/{id}', [CitaController::class, 'update']);
+    Route::get('/citas/{id}', [CitaController::class, 'show']);
+    Route::delete('/citas/{id}', [CitaController::class, 'destroy']);
+
+    
 });
