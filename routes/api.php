@@ -14,8 +14,10 @@ use App\Http\Controllers\ControlController;
 use App\Http\Controllers\CitaController;
 
 
-Route::get('/cursos-portal', [CursoController::class, 'indexPortal']);
-Route::post('/usuarios-portal', [UserController::class, 'storePortal']);
+
+
+Route::get('/mascotas/codigo/{codigo}', [MascotaController::class, 'porCodigo']);
+
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -36,13 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/usuarios/{id}', [UserController::class, 'update']);
     Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     Route::put('/usuarios/{id}/reset-password', [UserController::class, 'resetPassword']);
-
-    Route::get('/cursos', [CursoController::class, 'index']);
-    Route::post('/cursos', [CursoController::class, 'store']);
-    Route::get('/cursos/{id}', [CursoController::class, 'show']);
-    Route::put('/cursos/{id}', [CursoController::class, 'update']);
-    Route::delete('/cursos/{id}', [CursoController::class, 'destroy']);
-    Route::post('/cursos/{id}/imagen', [CursoController::class, 'updateImagen']);
 
     Route::get('/clientes', [ClienteController::class, 'index']);
     Route::post('/clientes', [ClienteController::class, 'store']);
@@ -81,6 +76,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/citas/{id}', [CitaController::class, 'update']);
     Route::get('/citas/{id}', [CitaController::class, 'show']);
     Route::delete('/citas/{id}', [CitaController::class, 'destroy']);
-
-    
 });

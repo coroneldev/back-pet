@@ -292,4 +292,23 @@ class MascotaController extends Controller
 
         return $pdf->download("Ficha_Mascota_{$mascota->codigo}.pdf");
     }
+
+    //servicio para la app movil
+    public function porCodigo($codigo)
+    {
+        $mascota = Mascota::with('cliente')->where('codigo', $codigo)->first();
+
+        if (!$mascota) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mascota no encontrada'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Mascota encontrada',
+            'data' => $mascota
+        ], 200);
+    }
 }
