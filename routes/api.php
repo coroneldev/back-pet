@@ -17,6 +17,7 @@ use App\Http\Controllers\CitaController;
 
 
 Route::get('/mascotas/codigo/{codigo}', [MascotaController::class, 'porCodigo']);
+Route::get('/mascota/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
 
 
 Route::post('/auth/login', [AuthController::class, 'login']);
