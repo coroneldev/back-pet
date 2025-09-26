@@ -18,6 +18,7 @@ use App\Http\Controllers\CitaController;
 
 Route::get('/mascotas/codigo/{codigo}', [MascotaController::class, 'porCodigo']);
 Route::get('/mascota/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
+Route::get('/mascota/codigo/{codigo}/pdf', [MascotaController::class, 'generarPDF']);
 
 
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -69,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*Reportes*/
     Route::get('/mascota/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
-    Route::get('/mascota/codigo/{codigo}/pdf', [MascotaController::class, 'generarPDF']);
+
 
 
     Route::get('/citas', [CitaController::class, 'index']);
