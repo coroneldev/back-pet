@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CursoController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -14,10 +13,8 @@ use App\Http\Controllers\ControlController;
 use App\Http\Controllers\CitaController;
 
 
-
-
 Route::get('/mascotas/codigo/{codigo}', [MascotaController::class, 'porCodigo']);
-Route::get('/mascota/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
+Route::get('/mascotas/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
 Route::get('/mascota/codigo/{codigo}/pdf', [MascotaController::class, 'generarPDF']);
 
 
@@ -26,7 +23,6 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/auth/logout', [AuthController::class, 'logout']);
-
 
     Route::get('/roles', [RolController::class, 'index']);
     Route::post('/roles', [RolController::class, 'store']);
@@ -54,7 +50,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/mascotas/{id}', [MascotaController::class, 'destroy']);
     Route::post('/mascotas/{id}/imagen', [MascotaController::class, 'updateImagen']);
 
-
     Route::get('/vacunas', [VacunaController::class, 'index']);
     Route::post('/vacunas', [VacunaController::class, 'store']);
     Route::put('/vacunas/{id}', [VacunaController::class, 'update']);
@@ -67,11 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/controles/{id}', [ControlController::class, 'update']);
     Route::delete('/controles/{id}', [ControlController::class, 'destroy']);
 
-
     /*Reportes*/
     Route::get('/mascota/codigo/{codigo}/vacunas', [MascotaController::class, 'vacunasPorCodigo']);
-
-
 
     Route::get('/citas', [CitaController::class, 'index']);
     Route::post('/citas', [CitaController::class, 'store']);
